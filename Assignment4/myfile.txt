@@ -1,0 +1,4 @@
+New top line
+New top line
+Line at position 3
+New bottom line

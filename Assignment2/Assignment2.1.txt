@@ -1,0 +1,30 @@
+ASSIGNMENT 2.1
+-------------------------------------------------------------
+In this Assignment  we will cover some basic command of linux
+- Create user named neha, vipul and abhishek
+- create group named linux
+- Create group named sigma
+- Change neha and abhishek primary group to sigma
+- change neha and abhishek secondary group to linux
+- create group named alpha
+- create user nkhil and priyashi and add them to linux and aplha group with single command
+- Change all user home directory permission to
+    - A user should have read,write, execute access to home directory
+    - All the users of same team should have read and excute access to home directory of fellow team members.
+    - others should have only execute permission to user's home directory
+- create these directory structure for all user
+  - home directory of user
+    - team
+    - linux
+- change permission for team directory only team members have full access
+- change permission for linux directory only linux trainer have full access
+- check if alpha team user can access sigma team directory.
+- check vipul user can access sigma or
+- change vipul user shell to make it service user.
+- force abhishek user to change its password on next login.
+- change nikhil user password.
+- list all user and group you have created
+- check which shell is added to neha user as default.
+- check the deafult permission of file and directory and how to change it
+- now delete vipul user.
+- delete linux group.

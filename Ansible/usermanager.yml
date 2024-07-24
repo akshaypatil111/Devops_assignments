@@ -1,0 +1,76 @@
+---
+- name: UserManager Playbook
+  hosts: all
+  become: yes
+  tasks:
+    - name: Create a group
+      ansible.builtin.group:
+        name: team1
+        state: present
+    - name: Create a user and add to team1
+      ansible.builtin.user:
+        name: nitish
+        group: team1
+        home: /home/nitish
+        shell: /bin/bash
+        password: "{{ 'password' | password_hash('sha512') }}"
+    - name: Ensure user has read, write, execute access to home directory
+      ansible.builtin.file:
+        path: /home/nitish
+        owner: nitish
+        group: team1
+        mode: '0700'
+    - name: Ensure team members have read and execute access to each other's home directory
+      ansible.builtin.file:
+        path: /home/nitish
+        owner: nitish
+        group: team1
+        mode: '0750'
+    - name: Create Team shared directory
+      ansible.builtin.file:
+        path: /home/nitish/team
+        owner: nitish
+        group: team1
+        mode: '0770'
+        state: directory
+    - name: Create ninjas group
+      ansible.builtin.group:
+        name: ninjas
+        state: present
+    - name: Create Ninja shared directory
+      ansible.builtin.file:
+        path: /home/nitish/ninja
+        owner: nitish
+        group: ninjas
+        mode: '0770'
+        state: directory
+    - name: Change user shell
+      ansible.builtin.user:
+        name: nitish
+        shell: /bin/zsh
+    - name: Change user password
+      ansible.builtin.user:
+        name: nitish
+        password: "{{ 'newpassword' | password_hash('sha512') }}"
+    - name: Delete user
+      ansible.builtin.user:
+        name: nitish
+        state: absent
+        remove: yes
+    - name: Delete group
+      ansible.builtin.group:
+        name: team1
+        state: absent
+    - name: List all users
+      ansible.builtin.command:
+        cmd: "cat /etc/passwd"
+      register: user_list
+    - debug:
+        var: user_list.stdout_lines
+    - name: List all groups
+      ansible.builtin.command:
+        cmd: "cat /etc/group"
+      register: group_list
+    - debug:
+        var: group_list.stdout_lines
+...

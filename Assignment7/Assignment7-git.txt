@@ -1,0 +1,389 @@
+#=======================================================================
+## PART A
+#=======================================================================
+
+- Create a folder ninja at the root level of your cloned code
+- Add a file README.md with content "Trying fast forward merge" in  ninja folder
+- Create a branch ninja and move to it
+- Run git status command
+- Commit your changes to ninja branch
+- Merge ninja branch to master branch make sure that a new commit get's created
+- Assuming you are in the master branch, modify README.md with content "Changes in master branch", commit the changes in master branch.
+- Switch to ninja branch, modify README.md with content "Changes in ninja branch", commit the changes in ninja branch.
+- Merge the ninja branch to the master branch in such a fashion that a merge conflict is generated and resolve it using the ours and theirs concept so that the changes of the ninja branch overrides changes in master branch.
+
+## Good To Do
+- Simulate the above scenarios using rebase
+
+#=======================================================================
+## PART B
+#=======================================================================
+
+- Write a script to manage branches
+    - Must
+        - List branches
+        - Create branch
+        - Delete branch
+        - Merge 2 branches
+        - Rebase 2 branches
+e.g:
+```
+./gitBranches.sh  -l 
+
+output: 
+master 
+ninja
+
+./gitBranch.sh -b <branch_name>
+./gitBranch.sh -d <branch_name>
+./gitBranch.sh -m -1 <branch_name1> -2 <branch_name2> ----> which means branch_name1 branch is going to merge into branch_name2 branch 
+./gitBranch.sh -r -1 <branch_name1> -2 <branch_name2>---- which means branch_name1 branch is going to rebase on branch_name2 branch
+```
+#=======================================================================
+## PART C
+#=======================================================================
+- Write a script to manage tags
+    - Must
+        - Create tag
+        - List tags
+        - Delete tag
+e.g:        
+```
+./gitTags.sh  -t <tag_name>
+./gitTags.sh  -t ninja_1.0
+./gitTags.sh  -t ninja_1.1
+./gitTags.sh  -l 
+output :
+ninja_1.0
+ninja_1.1
+./gitTags.sh  -d <tag_name>
+./gitTags.sh  -d ninja_1.0
+````
+#=======================================================================
+## PART D
+#=======================================================================
+- Write a script to generate commit report of a repo
+    - Input
+        - Repo url
+        - days for which report to be generated
+    - Output
+        - Commit Id
+        - Author name
+        - Autoher EMail
+        - Commit Message
+        - Changed Files lists
+    - Must Do
+        - Report in html or csv format
+		
+		
+		
+Solution :
+
+PART A :
+
+# Initial Setup
+mkdir ninja
+echo "Trying fast forward merge" > ninja/README.md
+git checkout -b ninja
+git status
+git add ninja/README.md
+git commit -m "Add README.md with initial content to ninja folder"
+
+# Merge ninja to master with a new commit
+git checkout master
+git merge --no-ff ninja -m "Merge ninja branch into master"
+
+# Changes in master branch
+echo "Changes in master branch" > ninja/README.md
+git add ninja/README.md
+git commit -m "Modify README.md in master branch"
+
+# Changes in ninja branch
+git checkout ninja
+echo "Changes in ninja branch" > ninja/README.md
+git add ninja/README.md
+git commit -m "Modify README.md in ninja branch"
+
+# Merge with conflict resolution 
+git checkout master
+git merge ninja
+git checkout --theirs ninja/README.md
+git add ninja/README.md
+git commit -m "Merge ninja branch into master with ninja branch changes overriding"
+
+# Rebase Scenario
+git checkout ninja
+git rebase master
+# Resolve conflicts if any
+git checkout --theirs ninja/README.md
+git add ninja/README.md
+git rebase --continue
+# Fast-forward merge
+git checkout master
+git merge ninja
+
+
+PART B:
+
+#!/bin/bash
+
+# Function to list all branches
+list_branches() {
+    git branch
+}
+
+# Function to create a new branch
+create_branch() {
+    local branch_name=$1
+    if [ -z "$branch_name" ]; then
+        echo "Error: Branch name is required."
+        exit 1
+    fi
+    git checkout -b "$branch_name"
+}
+
+# Function to delete a branch
+delete_branch() {
+    local branch_name=$1
+    if [ -z "$branch_name" ]; then
+        echo "Error: Branch name is required."
+        exit 1
+    fi
+    git branch -d "$branch_name"
+}
+
+# Function to merge two branches
+merge_branches() {
+    local source_branch=$1
+    local target_branch=$2
+    if [ -z "$source_branch" ] || [ -z "$target_branch" ]; then
+        echo "Error: Both source and target branch names are required."
+        exit 1
+    fi
+    git checkout "$target_branch"
+    git merge "$source_branch"
+}
+
+# Function to rebase one branch onto another
+rebase_branches() {
+    local source_branch=$1
+    local target_branch=$2
+    if [ -z "$source_branch" ] || [ -z "$target_branch" ]; then
+        echo "Error: Both source and target branch names are required."
+        exit 1
+    fi
+    git checkout "$source_branch"
+    git rebase "$target_branch"
+}
+
+# Parse command-line arguments
+while getopts "l:b:d:m:r:" opt; do
+    case $opt in
+        l )
+            list_branches
+            ;;
+        b )
+            create_branch "$OPTARG"
+            ;;
+        d )
+            delete_branch "$OPTARG"
+            ;;
+        m )
+            merge_branches "$OPTARG1" "$OPTARG2"
+            ;;
+        r )
+            rebase_branches "$OPTARG1" "$OPTARG2"
+            ;;
+        \? )
+            echo "Invalid option: -$OPTARG" >&2
+            exit 1
+            ;;
+        : )
+            echo "Invalid option: -$OPTARG requires an argument" >&2
+            exit 1
+            ;;
+    esac
+done
+
+
+PART C :
+
+#!/bin/bash
+
+# Function to create a tag
+create_tag() {
+    local tag_name=$1
+    if [ -z "$tag_name" ]; then
+        echo "Error: Tag name is required."
+        exit 1
+    fi
+    git tag "$tag_name"
+}
+
+# Function to list all tags
+list_tags() {
+    git tag
+}
+
+# Function to delete a tag
+delete_tag() {
+    local tag_name=$1
+    if [ -z "$tag_name" ]; then
+        echo "Error: Tag name is required."
+        exit 1
+    fi
+    git tag -d "$tag_name"
+}
+
+# Parse command-line arguments
+while getopts "t:d:l" opt; do
+    case $opt in
+        t )
+            create_tag "$OPTARG"
+            ;;
+        d )
+            delete_tag "$OPTARG"
+            ;;
+        l )
+            list_tags
+            ;;
+        \? )
+            echo "Invalid option: -$OPTARG" >&2
+            exit 1
+            ;;
+        : )
+            echo "Invalid option: -$OPTARG requires an argument" >&2
+            exit 1
+            ;;
+    esac
+done
+
+
+PART D :
+
+
+#!/bin/bash
+
+# Function to fetch commits and generate the report in CSV format
+generate_csv_report() {
+    local repo_url=$1
+    local days=$2
+    local output_file="commit_report.csv"
+
+    # Clone the repository
+    git clone "$repo_url" repo_temp
+    cd repo_temp || exit
+
+    # Get the commits within the specified number of days
+    git log --since="${days} days ago" --pretty=format:'%H,%an,%ae,"%s"' --name-only | \
+    awk '
+    BEGIN {
+        FS = ","
+        OFS = ","
+        print "Commit ID", "Author Name", "Author Email", "Commit Message", "Changed Files"
+    }
+    {
+        if (NR % 2 == 1) {
+            commit_id = $1
+            author_name = $2
+            author_email = $3
+            commit_message = $4
+        } else {
+            print commit_id, author_name, author_email, commit_message, $0
+        }
+    }' > "$output_file"
+
+    cd ..
+    rm -rf repo_temp
+}
+
+# Function to fetch commits and generate the report in HTML format
+generate_html_report() {
+    local repo_url=$1
+    local days=$2
+    local output_file="commit_report.html"
+
+    # Clone the repository
+    git clone "$repo_url" repo_temp
+    cd repo_temp || exit
+
+    # Create HTML report
+    {
+        echo "<html>"
+        echo "<head><title>Commit Report</title></head>"
+        echo "<body>"
+        echo "<h1>Commit Report</h1>"
+        echo "<table border='1'>"
+        echo "<tr><th>Commit ID</th><th>Author Name</th><th>Author Email</th><th>Commit Message</th><th>Changed Files</th></tr>"
+
+        git log --since="${days} days ago" --pretty=format:'%H,%an,%ae,"%s"' --name-only | \
+        awk '
+        BEGIN {
+            FS = ","
+        }
+        {
+            if (NR % 2 == 1) {
+                commit_id = $1
+                author_name = $2
+                author_email = $3
+                commit_message = $4
+                files = ""
+            } else {
+                files = files $0 "<br>"
+                print "<tr><td>" commit_id "</td><td>" author_name "</td><td>" author_email "</td><td>" commit_message "</td><td>" files "</td></tr>"
+            }
+        }'
+        
+        echo "</table>"
+        echo "</body>"
+        echo "</html>"
+    } > "$output_file"
+
+    cd ..
+    rm -rf repo_temp
+}
+
+# Parse command-line arguments
+while getopts "u:d:f:" opt; do
+    case $opt in
+        u )
+            repo_url=$OPTARG
+            ;;
+        d )
+            days=$OPTARG
+            ;;
+        f )
+            format=$OPTARG
+            ;;
+        \? )
+            echo "Invalid option: -$OPTARG" >&2
+            exit 1
+            ;;
+        : )
+            echo "Invalid option: -$OPTARG requires an argument" >&2
+            exit 1
+            ;;
+    esac
+done
+
+# Check if required arguments are provided
+if [ -z "$repo_url" ] || [ -z "$days" ] || [ -z "$format" ]; then
+    echo "Usage: $0 -u <repo_url> -d <days> -f <format (csv|html)>"
+    exit 1
+fi
+
+# Generate report based on the chosen format
+case $format in
+    csv)
+        generate_csv_report "$repo_url" "$days"
+        ;;
+    html)
+        generate_html_report "$repo_url" "$days"
+        ;;
+    *)
+        echo "Invalid format: $format. Use 'csv' or 'html'."
+        exit 1
+        ;;
+esac
+
+echo "Report generated in ${format} format."

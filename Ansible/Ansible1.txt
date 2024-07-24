@@ -1,0 +1,64 @@
+ANSIBLE ASSIGNMENT-1
+Complete the following steps with the help of ansible modules:
+
+UserManager:
+Add NinjaTeam (Simulate Group) ex: team1
+Add a User (Simulate) under a team ex: Nitish added to team1 Ensure below constraints are met:
+A user should have read,write, execute access to home directory
+All the users of same team should have read and excute access to home directory of fellow team members.
+In home directory of every user there should be 2 shared directories
+Team: Same team members will have full access
+Ninja: All ninja's will have full access
+Additional Features:
+
+Change user Shell
+Change user password
+Delete user
+Delete Group
+List user or Team
+
+
+Solution :-
+
+1. ansible all -i host -m ping
+
+2. Add NinjaTeam (Simulate Group) ex: team1 -
+> ansible web -i host -b -m ansible.builtin.group -a "name=team1 state=present"
+
+3. Add a User (Simulate) under a team ex: Nitish added to team1 Ensure below constraints are met:
+>ansible web -i host -b -m ansible.builtin.user -a "name=Nitish password=$(openssl passwd -1 Password123) shell=/bin/bash groups=team1 state=present create_home=yes"
+
+4. A user should have read,write, execute access to home directory
+>ansible web -i host -b -m ansible.builtin.file -a "path=/home/Nitish state=directory owner=Nitish group=team1 mode=0750"
+
+5. All the users of same team should have read and excute access to home directory of fellow team members./
+In home directory of every user there should be 2 shared directories
+> ansible web -i host -b -m ansible.builtin.apt -a "name=acl state=present"
+>ansible web -i host -b -m ansible.builtin.command -a "setfacl -Rdm g:team1:rx /home/Nitish"
+
+6. Team: Same team members will have full access
+> ansible web -i hosts -b -m ansible.builtin.file -a "path=/home/Nitish/Team state=directory owner=Nitish group=team1 mode=0770"
+
+7.Ninja: All ninja's will have full access
+>ansible web -i hosts -b -m ansible.builtin.file -a "path=/home/Nitish/Ninja state=directory owner=Nitish group=team1 mode=0770"
+
+
+8. Change user Shell
+>ansible web  -i host  -b -m ansible.builtin.user -a "name=Nitish shell=/bin/bash"
+
+9.Change user password
+>ansible web -i host  -b -m ansible.builtin.user -a "name=Nitish password=$(openssl passwd -1 NewPassword12345)"
+
+10.Delete user
+>ansible web -i host -b -m ansible.builtin.command -a "userdel Nitish"
+
+
+11.Delete Group
+>ansible web -i host  -b -m ansible.builtin.group -a "name=team1 state=absent"
+
+12.List user or Team
+>user-- ansible web -i host -b -m ansible.builtin.command -a "getent passwd"
+group-- ansible web -i host -b -m ansible.builtin.command -a "getent group"
+
+
+

@@ -1,0 +1,129 @@
+ASSIGNMENT 2.1
+-------------------------------------------------------------
+In this Assignment  we will cover some basic command of linux
+- Create user named neha, vipul and abhishek
+- create group named linux
+- Create group named sigma
+- Change neha and abhishek primary group to sigma
+- change neha and abhishek secondary group to linux
+- create group named alpha
+- create user nkhil and priyashi and add them to linux and aplha group with single command
+- Change all user home directory permission to
+    - A user should have read,write, execute access to home directory
+    - All the users of same team should have read and excute access to home directory of fellow team members.
+    - others should have only execute permission to user's home directory
+- create these directory structure for all user
+  - home directory of user
+    - team
+    - linux
+- change permission for team directory only team members have full access
+- change permission for linux directory only linux trainer have full access
+- check if alpha team user can access sigma team directory.
+- check vipul user can access sigma or
+- change vipul user shell to make it service user.
+- force abhishek user to change its password on next login.
+- change nikhil user password.
+- list all user and group you have created
+- check which shell is added to neha user as default.
+- check the deafult permission of file and directory and how to change it
+- now delete vipul user.
+- delete linux group.
+
+
+Solution :
+
+
+
+1: 
+sudo useradd neha
+sudo useradd vipul
+sudo useradd abhishek
+
+2:
+sudo groupadd linux
+
+3.
+sudo groupadd sigma
+
+4.
+sudo usermod -g sigma neha
+sudo usermod -g sigma abhishek
+
+5.
+sudo usermod -aG linux neha
+sudo usermod -aG linux abhishek
+
+6.
+sudo groupadd alpha
+
+7.
+sudo useradd -G linux,alpha nikhil
+sudo useradd -G linux,alpha priyashi
+
+8.
+for user in neha vipul abhishek nikhil priyashi; do
+    sudo chmod 751 /home/$user
+    sudo chgrp linux /home/$user
+    sudo chmod 770 /home/$user/team
+    sudo chmod 770 /home/$user/linux
+done
+
+9.
+for user in neha vipul abhishek nikhil priyashi; do
+    sudo mkdir -p /home/$user/team
+    sudo mkdir -p /home/$user/linux
+done
+
+
+10.
+for user in neha vipul abhishek nikhil priyashi; do
+    sudo chmod 770 /home/$user/team
+done
+
+
+11.
+for user in neha vipul abhishek nikhil priyashi; do
+    sudo chmod 770 /home/$user/linux
+done
+
+12.
+sudo -u nikhil ls /home/neha/team
+sudo -u priyashi ls /home/neha/team
+
+13.
+sudo -u vipul ls /home/neha/team
+
+
+14.
+sudo usermod -s /usr/sbin/nologin vipul
+
+
+15.
+sudo chage -d 0 abhishek
+
+
+16.
+echo "nikhil:newpassword" | sudo chpasswd
+
+
+17.
+echo "Users:"
+grep -E 'neha|vipul|abhishek|nikhil|priyashi' /etc/passwd
+echo "Groups:"
+grep -E 'linux|sigma|alpha' /etc/group
+
+
+18.
+grep neha /etc/passwd | cut -d: -f7
+
+
+19.
+unmask
+
+20.
+sudo userdel -r vipul
+
+
+21.
+sudo groupdel linux
+
